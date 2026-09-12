@@ -1,0 +1,193 @@
+
+# Add my machine's ip to the allowlist so I can connect. Don't need to go to the UI.
+atlas accessLists create --currentIp --projectId <PROJECT_ID>
+
+# Commands:
+
+insertOne()
+find()
+
+# load() to load js scripts and run them in mongosh
+
+db> load("file.js")
+
+# text editors
+
+db> config.get('editor')
+db> config.set('editor', 'vi')
+
+edit [function name]
+
+In the database:
+db.movies.insertOne({"dog breed": "golden retriver"}) 
+
+# Adding a function
+const randomMovie = () =>
+  db.movies.aggregate([{ $sample: { size: 1 } }]).toArray();
+
+# change db in a script
+db.getSiblingDb()
+
+db.collection.insertOne()
+db.collection.insertMany()
+
+# Also can assign a large array of values before using insertMany()
+
+db.collection.findOne()
+db.collection.find()
+
+# in
+{ "storeLocation": { $in: ["London", "New York"] } }
+
+db.sales.find({"customer age": { $lte: 65 }})
+{ "customer.age": { $lte: 45 } }
+{ "customer.age": { $gte: 45 } }
+{ "customer.age": { $lt: 45 } }
+{ "customer.age": { $gt: 45 } }
+
+db.sales.find({
+  items: {
+    $elemMatch: { name: "laptop", price: { $gt: 800 }, quantity: { $gte: 1 } },
+  },
+})
+
+
+# implicit and
+db.routes.find({ "airline.name": "Southwest Airlines", stops: { $gte: 1 } })
+
+# OR
+db.routes.find({
+  $or: [{ dst_airport: "SEA" }, { src_airport: "SEA" }],
+})
+
+# AND
+db.routes.find({
+  $and: [
+    { $or: [{ dst_airport: "SEA" }, { src_airport: "SEA" }] },
+    { $or: [{ "airline.name": "American Airlines" }, { airplane: 320 }] },
+  ]
+})
+
+
+
+db.sales.find({
+  couponUsed: true,
+  "customer.age": { $lte: 25 }
+})
+
+
+# replace
+
+db.collection.replaceOne()
+
+# update
+
+db.collection.updateOne()
+
+# operators
+# set is used to update if meant to replace
+# push is meant to append a new field or add if nothing exists
+
+# upsert - update or insert if doesn't exist
+
+db.podcasts.updateOne(
+  {
+    _id: ObjectId("5e8f8f8f8f8f8f8f8f8f8f8"),
+  },
+
+  {
+    $set: {
+      subscribers: 98562,
+    },
+  }
+)
+
+
+db.podcasts.updateOne(
+  { title: "The Developer Hub" },
+  { $set: { topics: ["databases", "MongoDB"] } },
+  { upsert: true }
+)
+
+db.podcasts.updateOne(
+  { _id: ObjectId("5e8f8f8f8f8f8f8f8f8f8f8") },
+  { $push: { hosts: "Nic Raboy" } }
+)
+
+
+
+db.movies.updateOne(
+  { title: "Inception" },
+  { $push: { genres: { $each: ["Sci-Fi", "Thriller"] } } }
+)
+
+db.birds.updateOne({
+_id: ObjectId('6268471e613e55b82d7065d7')
+}, 
+{$push: { diet: { $each: ["newts", "opossum", "skunks", "squirrels"] } } }
+)
+
+db.birds.updateOne({ common_name: 'Robin Redbreast' }, { $inc: { sightings: 1 }, $set: { last_updated: new Date() } }, { upsert: true })
+
+
+db.birds.findAndModify({_id: ObjectId('628682d92f3fa87b7d86dcce')},{sightings_count: 5}, true)
+db.birds.findAndModify({ _id: ObjectId('628682d92f3fa87b7d86dcce') }, { $set: { sightings_count: 5 } }, true)
+db.birds.findAndModify({
+  query: { _id: ObjectId('628682d92f3fa87b7d86dcce') },
+  update: { $inc: { sightings_count: 1 } },
+  new: true
+})
+
+
+db.podcasts.findAndModify({
+  query: { _id: ObjectId("6261a92dfee1ff300dc80bf1") },
+  update: { $inc: { subscribers: 1 } },
+  new: true,
+})
+
+db.books.updateMany(
+  { publishedDate: { $lt: new Date("2019-01-01") } },
+  { $set: { status: "LEGACY" } }
+)
+
+db.birds.updateMany(
+{ common_name: { $in: ["Blue Jay", "Grackle"]} },
+{ $set: { last_seen: new Date("2022-01-01") } } 
+)
+
+db.birds.deleteOne()
+db.birds.deleteMany()
+
+
+# Sorting
+
+
+
+db.routes.find({ "airline.name": "Southwest Airlines"}).sort({name:1})
+db.routes.find({ "airline.name": "Southwest Airlines"}).sort({name:1}).limit(3)
+
+
+
+
+Enterprise sample_supplies> db.sales.find({ "items.name": { $in: ["laptop", "backpack", "printer paper"] }, "storeLocation": "London" }).sort({ saleDate: -1 }).limit(3)
+
+# Inclusion and Exclusion
+db.sales.findOne({storeLocation: "Denver"}, {"saleDate":1, "storeLocation":1, "purchaseMethod":1, "_id":1})
+db.sales.find({ storeLocation: "Denver" }, { "saleDate": 1, "storeLocation": 1, "purchaseMethod": 1, "_id": 1 })
+db.sales.find({ storeLocation: "Denver" }, { saleDate: 1, storeLocation: 1, purchaseMethod: 1 })
+
+db.sales.find({"customer.age": {$lt:30}, "customer.satisfaction": {$gt:3}}, {"customer.age":1, "customer.satisfaction":1, saleDate:1, storeLocation:1, _id:0})
+db.sales.find({ storeLocation: { $in: ["Seattle", "New York"]}}, {purchaseMethod:0, customer:0, couponUsed:0})
+
+db.sales.countDocuments({ storeLocation: "Denver", couponUsed: true })
+
+db.sales.countDocuments({"items.name": "laptop", "items.price": {$lt: 600}})
+
+db.sales.countDocuments({ items: { $elemMatch: { name: "laptop", price: { $lt: 600 } } } } )
+
+
+
+
+
+
+

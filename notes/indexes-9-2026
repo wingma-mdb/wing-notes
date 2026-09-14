@@ -1,0 +1,113 @@
+
+9-14-2026
+
+
+High level 
+indexes are special data structures
+store small portion of data
+ordered and easy to search efficiently
+
+"point to the document identity"
+
+-support equality matches, range-based operations, and return sorted results
+-ordered based on index fields and values when the index is created 
+
+without indexes
+has to do full scan
+sort results in memory
+
+by default, only one index created per collection, which includes only the _id field
+every query should use an index
+
+tradeoffs
+
+pro:
+speed up query performance
+reduce disk I/O
+reduce resources required
+
+con:
+write performance degradation from index
+writes can significantly degrade if there are too many indexes
+if insert new or update documents, index data structure needs to be updated as well
+indexes need to be maintained and cleaned up if not used. or could degrade writes
+
+
+index types
+
+most common:
+single field
+compound field - more than one field in index
+multikey index - operate on an array field
+
+syntax:
+
+db.collection.createIndex({birthdate:1})
+db.collection.createIndex({birthdate:1}, {unique:1})
+
+db.collection.getIndexes()
+
+-can also view indexes in Atlas UI
+
+
+createIndexes()	Create multiple indexes in one operation
+getIndexes()	Return the collection’s index definitions
+listIndexes()	Return an index cursor for inspection
+indexExists()	Check whether named indexes exist
+dropIndex()	Remove one specific index
+dropIndexes()	Remove all indexes except the default _id index
+hideIndex()	Hide an index from the query planner without deleting it
+unhideIndex()	Make a hidden index visible again
+
+Using explain() to look at what the winning plan is for the query.
+
+Important fields include:
+
+winningPlan — Plan MongoDB selected.
+IXSCAN — Index scan; usually indicates an index is being used.
+COLLSCAN — Collection scan; MongoDB examines documents directly.
+nReturned — Documents returned.
+totalKeysExamined — Index entries examined.
+totalDocsExamined — Documents examined.
+executionTimeMillis — Execution time.
+
+
+Compound index:
+
+db.customers.createIndex({
+  active:1, 
+  birthdate:-1,
+  name:1
+})
+
+Order matters for compound index
+Equalty, sort, range
+
+Deletion:
+all indexes can be deleted except default _id index
+
+It's recommended to hide index first and then delete for production clusters
+
+dropIndex()
+dropIndexes()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

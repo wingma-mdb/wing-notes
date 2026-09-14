@@ -1,0 +1,149 @@
+9-12-2026
+
+aggregation
+
+Stages:
+$match - filters for data
+$group - group documents
+$sort - puts documents in a certain order
+$limit - set how many documents you want returned
+$project - specify which fields to show in documents
+$count - return a document showing a value of number of results
+$set - update or create new fields
+$out - create or update a collection to fill with results from pipeline
+
+
+
+
+Example:
+db.zips.aggregate([
+  {
+    $match: { "state": "CA" }
+  },
+  {
+    $group: {
+      _id: "$city",
+      totalZips: { $count : { } }
+    }
+  }
+])
+
+db.sightings.aggregate([
+  {
+    $match: { specifies_common: "Eastern Bluebird" }
+  },
+  {
+    $group: {
+      _id: "$location.coordinates",
+      number_of_sightings: { $count : { } }
+    }
+  }
+])
+
+
+db.zips.aggregate([
+{
+  $sort: {
+    pop: -1
+  }
+},
+{
+  $limit:  5
+}
+])
+
+db.sightings.aggregate([
+{
+  $sort: {
+    'location.coordinates.1': -1
+  }
+},
+{
+  $limit:  4
+}
+])
+
+
+db.sightings.aggregate(
+{
+  $project: {
+    date: 1,
+    species_common: 1,
+    _id:0
+  }
+})
+
+db.birds.aggregate(
+{
+    $set: {
+        class: "bird"
+     }
+  })
+
+db.sightings.aggregate([
+{
+    $match: {
+        common_species: "Eastern Bluebird",
+        date: { $gt: "January 1, 2022 0:00"},
+        date: { $lt: "January 1, 2023 0:00"}
+    }
+},
+{
+    count: 1
+
+}])
+
+
+db.sightings.aggregate([
+  {
+    $match: {
+      species_common: "Eastern Bluebird",
+      date: { 
+        $gt: ISODate("2022-01-01T00:00:00Z"), 
+        $lt: ISODate("2023-01-01T00:00:00Z") 
+      }
+    }
+  },
+  {
+    $count: "bluebird_sightings_2022"
+  }
+])
+
+db.sightings.aggregate([
+{
+  $match: {
+    date: {
+      $gt: ISODate('2022-01-01T00:00:00.000Z'),
+      $lt: ISODate('2023-01-01T00:00:00.000Z')
+    },
+    species_common: 'Eastern Bluebird'
+  }
+}, {
+  $count: 'bluebird_sightings_2022'
+}
+])
+
+
+ISODate('2022-01-18T23:55:40.000Z')
+
+
+db.sightings.aggregate([
+{
+  $match: {
+    date: {
+      $gte: ISODate('2022-01-01T00:00:00.000Z'),
+      $lt: ISODate('2023-01-01T00:00:00.000Z')
+    },
+  }
+},
+{
+  $out: "sightings_2022"
+}
+])
+
+
+
+
+
+
+

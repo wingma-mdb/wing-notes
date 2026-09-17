@@ -9,10 +9,10 @@ $sort - puts documents in a certain order
 $limit - set how many documents you want returned
 $project - specify which fields to show in documents
 $count - return a document showing a value of number of results
-$set - update or create new fields
+$set - update or create nicew fields
 $out - create or update a collection to fill with results from pipeline
-
-
+$search - search documents
+$searchMeta - for searching metadata
 
 
 Example:
@@ -142,6 +142,104 @@ db.sightings.aggregate([
 ])
 
 
+
+db.movies.createSearchIndex(
+  "plotIndex",
+   {
+      "mappings": {
+         "fields": {
+            "plot": {
+               "type": "string"
+            }
+         }
+      }
+   }
+)
+
+
+db.movies.aggregate([
+    {
+      "$search": {
+        "index": "plotIndex",
+        "text": {
+          "query": "space",
+          "path": "plot"
+        }
+      }
+    }
+  ])
+
+
+db.movies.aggregate([
+  {
+    "$search": {
+      "index": "plotIndex",
+      "text": {
+        "query": "space",
+        "path": "plot",
+      },
+    },
+  },
+  { "$limit": 3 },
+  {
+    "$project": {
+      "_id": 0,
+      "title": 1,
+      "plot": 1,
+      "score": { "$meta": "searchScore" },
+    },
+  },
+]);
+
+
+db.movies.aggregate([
+    {
+      "$searchMeta": {
+        "index": "plotIndex",
+        "text": {
+          "query": "space",
+          "path": "plot"
+        },
+        "count": {
+          "type": "total"
+        }
+      }
+    }
+  ])
+
+
+
+Dynamic and static mappings
+
+db.movies.createSearchIndex(
+   { "mappings": { "dynamic": true } }
+)
+
+db.movies.createSearchIndex(
+    "plotReleasedIndex",
+     {
+        "mappings": {
+          "dynamic": false,
+           "fields": {
+              "plot": {
+                 "type": "string"
+              },
+              "released": {
+                 "type": "embeddedDocument",
+                 "dynamic": true
+              }
+           }
+        }
+     }
+  )
+
+
+
+db.movies.dropSearchIndex('plot_title_idx')
+
+db.collection.createSearchIndex("my_index", { mappings: { dynamic: true } })
+
+db.movies.createSearchIndex("movies_dynamic", { mappings: { dynamic: true } })
 
 
 

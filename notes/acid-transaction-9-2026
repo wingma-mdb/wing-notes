@@ -1,0 +1,61 @@
+
+ACID transaction
+
+Atomicity
+Consistency
+Isolation
+Durability
+
+All or nothing transaction
+
+const session = db.getMongo().startSession()
+
+session.startTransaction()
+
+const account = session.getDatabase('< add database name here>').getCollection('<add collection name here>')
+
+//Add database operations like .updateOne() here
+
+session.commitTransaction()
+
+const session = db.getMongo().startSession()
+
+session.startTransaction()
+
+const account = session.getDatabase('< add database name here>').getCollection('<add collection name here>')
+
+//Add database operations like .updateOne() here
+
+session.abortTransaction()
+
+
+nterprise replicaSet1 [direct: primary] bank> const session = db.getMongo().startSession()
+
+Enterprise replicaSet1 [direct: primary] bank> session.startTransaction()
+
+Enterprise replicaSet1 [direct: primary] bank> const account = session.getDatabase('bank').getCollection('accounts')
+
+Enterprise replicaSet1 [direct: primary] bank> account.insertOne({
+...   account_id: 'MDB454252264',
+...   account_holder: 'Florence Taylor',
+...   account_type: "savings",
+...   balance: 100.0,
+...   transfers_complete: [],
+...   last_updated: new Date()
+... })
+{
+  acknowledged: true,
+  insertedId: ObjectId('6aa88d5fa79ac539038ce5b0')
+}
+Enterprise replicaSet1 [direct: primary] bank> account.updateOne( { account_id: 'MDB963134500' }, {$inc: { balance: -100.00 }})
+{
+  acknowledged: true,
+  insertedId: null,
+  matchedCount: 1,
+  modifiedCount: 1,
+  upsertedCount: 0
+}
+
+
+
+

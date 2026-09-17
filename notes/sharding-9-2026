@@ -1,0 +1,52 @@
+Sharding
+
+horizontal scaling
+supports distributed ACID transactions
+
+increases volume of persisted data
+
+increase/distribute throughput to scale both reads and writes
+
+decrease latency of reads and writes
+
+when should you shard?
+above 200GB to 0.5TB and growing
+hardware at its max limit
+vertical scaling not possible or cost effective
+your schema and cost maybe already have been optimized
+
+when not to
+below 200GB and not growing
+
+Shard Key
+used to route operations to the appropriate shard
+used for reads and writes
+
+Shard distribution is ideally even. but each has their own tradeoffs
+
+Chunking
+contiguous range of shard key values
+
+Cardinality
+number of unique fields. High cardinality lead to better distribution of documents in shards
+
+Right distribution of shard key for documents load
+Right distribution of writes
+Right distribution of reads
+
+Example a social media influencer has different content across their account. posts, media, content
+One single shard key for the user may still be too concentrated
+by using a compound shard key for different dates, could better distribute the load
+
+Index locality
+how indexes for large data sets are loaded into RAM has an impact
+using both user and timestamp like in the social influencer example would better distribute the data as well for index locality
+
+Change in size of shard key range
+5.0 configurable up to 1GB
+6.0>= 125MB max
+
+
+
+
+

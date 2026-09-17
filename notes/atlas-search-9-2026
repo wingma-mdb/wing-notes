@@ -1,0 +1,205 @@
+
+Atlas search
+
+require indexes
+
+static and dynamic mappings
+
+Data types:
+Strings
+Numbers - Double, 32-bit integer, 64-bit integer
+Booleans
+Dates
+
+nested array limitations
+If array of subdocuments, they needed to be in the embedded document type
+has the option to index specific fields within a subdocument
+
+Search index fields and data types
+
+db.collection.createSearchIndex(
+    "indexName",
+     {
+        "mappings": {
+          "dynamic": false,
+           "fields": {
+              "fieldName": {
+                 "type": "string"
+              }
+           }
+        }
+     }
+  )
+
+Set an array of subdocuments
+
+{
+  "mappings": {
+    "dynamic": false,
+    "fields": {
+      "": {
+        "type": "embeddedDocuments",
+        "dynamic": true|false,
+        "fields": {
+          "": {
+            
+          }
+        }
+      }
+    }
+  }
+}
+
+Assign a field multiple data types
+
+db.movies.createSearchIndex(
+    "directorsIndex",
+     {
+        "mappings": {
+          "dynamic": false,
+           "fields": {
+              "directors": [
+                {
+                 "type": "string"
+              },
+              {
+                  "type": "objectId"
+              }
+            ]
+           }
+        }
+     }
+  )
+
+Search Operators
+
+search must be first stage in aggregate() pipeline
+
+Text
+Equals
+Near
+Range
+
+
+db.movies.aggregate([
+    {
+      "$search": {
+        "index": "plotReleasedIndex",
+        "text": {
+          "query": "nature",
+          "path": "plot"
+        }
+      }
+    },
+   { "$project": {"_id": 0, "title": 1, "plot": 1 }}
+  ])
+
+db.movies.aggregate([
+   {
+      "$search": {
+         "index": "plotReleasedIndex",
+         "equals": {
+            "path": "released",
+            "value": ISODate("1999-03-31T00:00:00.000Z")
+         }
+      }
+   },
+   { "$project": {"_id": 0, "title": 1, "released": 1 }}
+])
+
+
+db.movies.aggregate([
+   {
+      "$search": {
+         "index": "plotReleasedIndex",
+         "near": {
+            "path": "released",
+            "origin": ISODate("1999-05-17T00:00:00.000+00:00"),
+            "pivot": 2629746000
+         }
+      }
+   },
+{ "$project": { "_id": 0, "title": 1, "released": 1, "score": { "$meta": "searchScore" }}}
+])
+
+db.movies.aggregate([
+  {
+    "$search": {
+      "index": "plotReleasedIndex",
+      "range": {
+        "path": "released",
+        "gt": ISODate("1994-01-01T00:00:00.000Z"),
+        "lt": ISODate("1999-01-01T00:00:00.000Z")
+      }
+    }
+  },
+  { "$project": { "_id": 0, "title": 1, "released": 1 }}
+])
+
+Search Facets
+
+db.movies.createSearchIndex(
+    "genresFacetedIndex",
+    {
+      "mappings": {
+        "dynamic": false,
+        "fields": {
+          "genres": {
+            "type": "stringFacet"
+          },
+          "released": {
+            "type": "date"
+          }
+        }
+      }
+    }
+  )
+
+db.movies.aggregate([
+    {
+      "$searchMeta": {
+        "index": "genresFacetedIndex",
+        "facet": {
+          "operator": {
+            "range": {
+                "path": "released",
+                "gte": ISODate("2000-01-01T00:00:00.000Z"),
+                "lte": ISODate("2000-01-31T00:00:00.000Z")
+              },
+            },
+          "facets": {
+            "genresFacet": {
+              "type": "string",
+              "path": "genres"
+            }
+          }
+        }
+      }
+    }
+  ])
+
+db.movies.aggregate([
+    {
+      "$searchMeta": {
+        "index": "genresFacetedIndex",
+        "facet": {
+          "operator": {
+            "range": {
+                "path": "released",
+                "gte": ISODate("2000-01-01T00:00:00.000Z"),
+                "lte": ISODate("2000-01-31T00:00:00.000Z")
+              },
+            },
+          "facets": {
+            "genresFacet": {
+              "type": "string",
+              "path": "genres",
+              "numBuckets":  2
+            }
+          }
+        }
+      }
+    }
+  ])
+
+

@@ -46,6 +46,127 @@ Change in size of shard key range
 5.0 configurable up to 1GB
 6.0>= 125MB max
 
+#
+# Mechanics of sharding
+#
+
+Sharding Strategies 
+
+-hash sharding
+pros
+high cardinality and distribution
+read and write distribution
+
+cons
+poor read targetting
+poor read locality
+poor index locality
+
+-range sharding
+default strategy at mongodb
+contiguous range by the shard key
+
+Querying
+
+MongoS 
+- routes reads and writes to the relevant shards
+- maintains a metadata cache of all the members
+- clients and MongoS pick a MongoS with lowest latency from seedlist
+
+during a query
+lookup where data with the key is stored
+send query to the replica set to run as normal
+returns results back to client
+
+if query does not contain shard key, send to all servers. results streamed back to client
+
+How does the request path work?
+Client -> MongoS -> Config server -> Shard server
+Config server Replica Set (CSRS)
+
+# Routing
+MongoS extracts the shard key/prefix from the query
+MongoS reads metadata from CSRS to determine where shard key is in the range.
+If MongoS doesn't have this metadata cached, it does caches it.
+Using the metadata MonoS routes the query to correct shard server.
+Shard server runs the query and streams the results back to the client.
+If the query cannot be targeted by shard, it broadcasts to all shards and streams results back to client
+When metadata changes, cache is updated
+
+Chunk migration and balancing
+donors send data to other shards
+and migrating/balancing can only occur on n/2 of all shards with this data. (prevent blocking other traffic)
+
+zoned sharding
+-for date sovereinghty - EU, NA, CN etc
+-laws/regulations for data
+-enables tiered storage, hdd, ssd,
+
+Refine or Reshard
+
+refine()
+reshard()
+
+poor performance may require resharding
+or unsharding
+
+Sharding limitations
+
+Operational restrictions for sharding
+mongodb does not support unique index across shards
+except when the unique index contains the full shard key as a prefix of the index
+mongodb does not guarantee consistent indexes across shards
+
+jumbo chunks - when there's just one index and cannot be split further. jumbo chunks grow unbounded
+
+fix:
+identify jumbo chunk - sh.status(), 
+split the jumbo chunk manually - sh.splitAt()
+increase chunk size - if splitting is not feasible, temporarily increase max size to improve distribution db.settings.update()
+if chunk is beyond splitting, consider refining or resharding
+take off jumbo flag
+rebalance chunks - sh.startBalancer() trigger a manual rebalancing of chunks across shards
+
+top chunk - becomes bottleneck
+
+Scatter gather queries - A scatter-gather query is a query in a MongoDB sharded cluster that mongos sends to multiple or all shards, then gathers and merges their results before returning them to the client
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

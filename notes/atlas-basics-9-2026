@@ -187,6 +187,14 @@ db.sales.countDocuments({ items: { $elemMatch: { name: "laptop", price: { $lt: 6
 
 
 
+tags:
+
+owner: wing.ma
+keep_until: 2022-11-01
+name: NHT labs ken (basically unique name)
+
+
+
 
 
 

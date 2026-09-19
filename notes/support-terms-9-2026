@@ -1,0 +1,35 @@
+
+EOL
+end of life
+usually announce 2 years in advance
+
+Release versioning
+
+Major 6.
+Rapid 6.1. - pushed 4-6 months to Atlas users only
+Patch 6.1.7 - 
+
+PHN
+project handling note - contractual agreement and taken seriously. noted on a case ticket
+
+Severity levels
+
+S1 - error in customers production env, down or seriously impaired, prod data is loss or destroyed, no work around available
+S2 - software is moderately impaired, systems function but in a reduced capacity, no work around available
+S3 - does not need to be related to a customers prod env, could be an error identified that does not prevent normal operation of a customers system, work around available
+S4 - non critical errors, general questions and requests for enhancements
+
+SLA
+response time depends on severity and Atlas tier
+
+OOCS out of contract support
+TVSE temporary version support extension, up to 90 days after EOL
+ELS extended lifecycle support
+
+Atlas uptime availability SLA
+99.995% uptime over a monthly average
+customers who have not received this SLA or below can request a compensation credit. reach out to the Cloud TAM team 
+
+
+
+

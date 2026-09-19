@@ -1,0 +1,10 @@
+
+Atlas diagnostics is a tool on Olympus
+https://olympus.corp.mongodb.com/
+
+It provides multiple views of a project/org on Atlas
+
+For example I pasted my test project: https://cloud.mongodb.com/v2/6aa36c527d8eb0eca71d26f4#/overview
+
+it was able to show me stats and setup of this cluster hosted by the project
+

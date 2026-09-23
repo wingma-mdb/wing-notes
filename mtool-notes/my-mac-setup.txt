@@ -1,0 +1,101 @@
+Steps to install m and mlaunch for a local install of a 3 node replica set 
+
+1. Install m
+
+npm install -g m
+
+2. Select a MongoDB version
+
+To use MongoDB 9.0.0-rc0:
+
+m 9.0.0-rc0
+
+To use Enterprise 7.0.5 instead:
+
+m 7.0.5-ent
+
+To list the versions managed by m:
+
+m
+
+3. Add MongoDB binaries to PATH
+
+export PATH="$HOME/.local/bin:$PATH"
+hash -r
+
+Verify that mongod is available:
+
+which mongod
+mongod --version
+
+To make the PATH change permanent for zsh:
+
+echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.zshrc
+source ~/.zshrc
+
+4. Install the macOS-compatible mtools fork
+
+The standard mtools package uses mongod --fork, which is incompatible with macOS. Use the macOS-compatible fork instead.
+
+mkdir -p ~/src
+git clone https://github.com/renatoriccio/mtools.git ~/src/mtools-macos
+cd ~/src/mtools-macos
+git checkout support_embeddedcrs
+
+Create and activate a dedicated Python virtual environment:
+
+python3 -m venv ~/.venvs/mtools-macos
+source ~/.venvs/mtools-macos/bin/activate
+
+Install the fork and its optional dependencies:
+
+python -m pip install --upgrade pip
+python -m pip install -e '.[all]'
+
+Make sure the MongoDB binaries remain available while the virtual environment is active:
+
+export PATH="$HOME/.local/bin:$PATH"
+
+Verify both commands:
+
+which mlaunch
+which mongod
+
+5. Create the local replica-set directory
+
+mkdir -p ~/devws/wing-notes/mtool-notes/replset
+cd ~/devws/wing-notes/mtool-notes/replset
+
+If a previous launch failed and you do not need its local data, remove the failed data directory:
+
+rm -rf ./data
+
+6. Start a 3-node replica set
+
+mlaunch init --replicaset --nodes 3 --port 30000 --dir ./data
+
+Expected result:
+
+launching: "mongod" on port 30000
+launching: "mongod" on port 30001
+launching: "mongod" on port 30002
+replica set 'replset' initialized.
+
+7. Check the running nodes
+
+mlaunch list
+
+8. Connect with mongosh
+
+mongosh --port 30000
+
+9. Stop and restart the replica set
+
+Stop it:
+
+mlaunch stop
+
+Start it again:
+
+mlaunch start
+

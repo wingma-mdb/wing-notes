@@ -3,6 +3,25 @@
  
 ./run_analyzer.sh
 
+mongod --dbpath "$HOME/data/config-analyzer-6.0" \
+  --port 27017 --bind_ip 127.0.0.1
 
+python3 ./config_logifyer.py \
+  -u "mongodb://127.0.0.1:27017" \
+  -d sample_config | mplotqueries
 
+python3 ./config_timeseries.py \
+  -u "mongodb://127.0.0.1:27017" \
+  -d sample_config
+
+python3 ./plot_split_distribution.py \
+  -d sample_config \
+  sample_airbnb.listingsAndReviews \
+  -s 2022-08-15T20:11:00
+
+python3 ./config_timeseries.py \
+  -u "mongodb://127.0.0.1:27017" \
+  -d sample_config \
+  -c sample_airbnb.listingsAndReviews \
+  -s 2022-08-15T20:11:00
 
